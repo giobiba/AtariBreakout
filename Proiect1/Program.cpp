@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "game.h"
+#include "resource_manager.h"
 
 const unsigned int SCREEN_WIDTH = 800, SCREEN_HEIGHT = 600;
 
@@ -44,10 +45,6 @@ int main(int argc, char* argv[])
 	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Planet Destroyer", NULL, NULL);
 	glfwMakeContextCurrent(window);
 
-
-
-
-
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
@@ -78,10 +75,12 @@ int main(int argc, char* argv[])
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
 		PlanetDestroyer.Render();
 
 		glfwSwapBuffers(window);
 	}
+	ResourceManager::Clear();
 
 	glfwTerminate();
 	return 0;

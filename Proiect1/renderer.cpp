@@ -1,5 +1,16 @@
 #include "renderer.h"
+#include <iostream>
 
+void printMatrix(glm::mat4 matr)
+{
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+            std::cout << matr[i][j];
+        std::cout << '\n';
+    }
+        
+}
 
 Renderer::Renderer(Shader& shader) : shader(shader)
 { 
@@ -11,7 +22,7 @@ Renderer::~Renderer()
     glDeleteVertexArrays(1, &this->VAO);
 }
 
-void Renderer::DrawSprite(Texture texture, glm::vec2 position, glm::vec2 size = glm::vec2(10.0f, 10.0f), float rotate = 0.0f, glm::vec3 color = glm::vec3(1.0f))
+void Renderer::DrawSprite(Texture texture, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
 {
     this->shader.use();
     glm::mat4 model = glm::mat4(1.0f);
@@ -26,7 +37,7 @@ void Renderer::DrawSprite(Texture texture, glm::vec2 position, glm::vec2 size = 
 
     model = glm::scale(model, glm::vec3(size, 1.0f));
 
-    this->shader.SetMatrix4("model", model);
+    this->shader.SetMatrix4("projection", model);
     this->shader.SetVector3f("spriteColor", color);
 
     glActiveTexture(GL_TEXTURE0);
@@ -61,7 +72,7 @@ void Renderer::initRenderData()
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)2);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);

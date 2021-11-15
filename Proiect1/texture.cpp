@@ -1,4 +1,5 @@
 #include "texture.h"
+#include <iostream>
 
 Texture::Texture(): width(0), height(0), 
     internal_format(GL_RGB), image_format(GL_RGB), wrap_s(GL_REPEAT), wrap_t(GL_REPEAT), filter_min(GL_LINEAR), filter_max(GL_LINEAR)
