@@ -15,7 +15,7 @@ public:
 	Renderer(Shader& shader);
 	~Renderer();
 
-	void DrawSprite(Texture& texture, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color);
+	void DrawSprite(Texture texture, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color);
 
 	Shader shader;
 	unsigned int VAO;
