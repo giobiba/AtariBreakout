@@ -16,6 +16,7 @@ public:
 
 	float Rotation;
 	bool Destroyed;
+	bool IsSolid;
 
 	Texture Sprite;
 

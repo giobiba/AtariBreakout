@@ -13,6 +13,8 @@
 
 #include "glm/glm/gtc/matrix_transform.hpp"
 
+#include "game_object.h"
+
 enum Direction {
     UP,
     RIGHT,
@@ -28,13 +30,17 @@ public:
     bool Keys[1024];
     bool KeysProcessed[1024];
     unsigned int Width, Height;
+    std::vector<GameObject> Bricks;
+
 
     Game(unsigned int width, unsigned int height);
     ~Game();
 
     void Init();
     void ProcessInput(float dt);
-
+    void Draw(Renderer& renderer);
+    void Load(const char* file, unsigned int levelWidth,
+        unsigned int levelHeight);
     void Update(float dt);
     void Render();
 };

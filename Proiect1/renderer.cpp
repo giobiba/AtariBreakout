@@ -37,7 +37,7 @@ void Renderer::DrawSprite(Texture texture, glm::vec2 position, glm::vec2 size, f
 
     model = glm::scale(model, glm::vec3(size, 1.0f));
 
-    this->shader.SetMatrix4("projection", model);
+    this->shader.SetMatrix4("model", model);
     this->shader.SetVector3f("spriteColor", color);
 
     glActiveTexture(GL_TEXTURE0);
