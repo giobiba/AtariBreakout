@@ -15,15 +15,10 @@
 
 #include "game_object.h"
 
-enum Direction {
-    UP,
-    RIGHT,
-    DOWN,
-    LEFT
-};
-
 const glm::vec2 PLAYER_SIZE(100.0f, 20.0f);
 const float PLAYER_VELOCITY(500.0f);
+
+const glm::vec2 BALL_SIZE(30.0f, 30.0f);
 
 class Game {
 public:
@@ -32,6 +27,7 @@ public:
     unsigned int Width, Height;
     std::vector<GameObject> Bricks;
 
+    bool Finished = false;
 
     Game(unsigned int width, unsigned int height);
     ~Game();

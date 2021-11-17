@@ -6,7 +6,7 @@
 #include "renderer.h"
 #include "game_object.h"
 
-GameObject* player;
+GameObject* player,* ball;
 Renderer* renderer;
 
 Game::Game(unsigned int width, unsigned int height)
@@ -15,6 +15,17 @@ Game::Game(unsigned int width, unsigned int height)
 Game::~Game() {
     delete renderer;
     delete player;
+}
+
+bool CheckCollision(GameObject& one, GameObject& two)
+{
+    bool collisionX = one.Position.x + one.Size.x >= two.Position.x &&
+        two.Position.x + two.Size.x >= one.Position.x;
+
+    bool collisionY = one.Position.y + one.Size.y >= two.Position.y &&
+        two.Position.y + two.Size.y >= one.Position.y;
+
+    return collisionX && collisionY;
 }
 
 void Game::Draw(Renderer& renderer)
@@ -77,7 +88,7 @@ void Game::Load(const char* file, unsigned int levelWidth,
 
                         glm::vec2 pos(unit_width * x, unit_height * y);
                         glm::vec2 size(unit_width, unit_height);
-                        this->Bricks.push_back(GameObject(pos, size, ResourceManager::GetTexture("block"), color));
+                        this->Bricks.push_back(GameObject(pos, size, ResourceManager::GetTexture("block"), color, glm::vec2(-35.0f, 35.0f)));
                     }
                 }
             }
@@ -98,7 +109,7 @@ void Game::Init()
 
     renderer = new Renderer(ResourceManager::GetShader("sprite").use());
 
-    ResourceManager::LoadTexture("images/image.png", false, "face");
+    ResourceManager::LoadTexture("images/ball.png", true, "ball");
     ResourceManager::LoadTexture("images/background.jpg", false, "background");
     ResourceManager::LoadTexture("images/paddle.png", true, "paddle");
     ResourceManager::LoadTexture("images/block.png",
@@ -111,9 +122,34 @@ void Game::Init()
         Height - PLAYER_SIZE.y);
     player = new GameObject(playerPos, PLAYER_SIZE,
         ResourceManager::GetTexture("paddle"));
+
+    glm::vec2 ballPos = glm::vec2(Width / 2.0f ,
+        Height / 2.0f);
+    ball = new GameObject(ballPos, BALL_SIZE, ResourceManager::GetTexture("ball"), glm::vec3(1.0f), glm::vec2(-150.0f, 150.0f));
 }
 
-void Game::Update(float dt) {}
+void Game::Update(float dt) {
+    ball->Position += ball->Velocity * dt;
+
+    if (ball->Position.x <= 0.0f)
+    {
+        ball->Velocity.x = -ball->Velocity.x;
+        ball->Position.x = 0.0f;
+    }
+    else if (ball->Position.x + ball->Size.x >= this->Width)
+    {
+        ball->Velocity.x = -ball->Velocity.x;
+        ball->Position.x = 0.0f;
+    }
+    if (ball->Position.y <= 0.0f)
+    {
+        ball->Velocity.y = -ball->Velocity.y;
+        ball->Position.y = 0.0f;
+    }
+    else if (ball->Position.y + ball->Size.y >= this->Height)
+        this->Finished = true;
+
+}
 
 void Game::ProcessInput(float dt) {
 
@@ -137,5 +173,6 @@ void Game::Render()
 
     this->Draw(*renderer);
     player->Draw(*renderer);
+    ball->Draw(*renderer);
 
 }

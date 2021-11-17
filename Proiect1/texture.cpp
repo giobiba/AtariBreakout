@@ -2,7 +2,7 @@
 #include <iostream>
 
 Texture::Texture(): width(0), height(0), 
-    internal_format(GL_RGB), image_format(GL_RGB), wrap_s(GL_REPEAT), wrap_t(GL_REPEAT), filter_min(GL_LINEAR), filter_max(GL_LINEAR)
+    internal_format(GL_RGB), image_format(GL_RGB), wrap_s(GL_CLAMP_TO_BORDER), wrap_t(GL_CLAMP_TO_BORDER), filter_min(GL_LINEAR), filter_max(GL_LINEAR)
 {
     glGenTextures(1, &this->id);
 }

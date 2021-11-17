@@ -61,7 +61,10 @@ int main(int argc, char* argv[])
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
 
-	while (!glfwWindowShouldClose(window))
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	while (!glfwWindowShouldClose(window) && PlanetDestroyer.Finished != true)
 	{
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
