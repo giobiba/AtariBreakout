@@ -147,7 +147,7 @@ void Game::Update(float dt) {
         ball->Position.y = 0.0f;
     }
     else if (ball->Position.y + ball->Size.y >= this->Height)
-        this->Finished = true;
+        this->Finished = false; // valoarea ar trebui sa fie true, dar pentru a putea fi static este fals
 
 }
 
