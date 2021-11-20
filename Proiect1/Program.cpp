@@ -7,7 +7,7 @@
 
 const unsigned int SCREEN_WIDTH = 800, SCREEN_HEIGHT = 600;
 
-Game PlanetDestroyer(SCREEN_WIDTH, SCREEN_HEIGHT);
+Game Atari(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
@@ -16,11 +16,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	if (key >= 0 && key < 1024)
 	{
 		if (action == GLFW_PRESS)
-			PlanetDestroyer.Keys[key] = true;
+			Atari.Keys[key] = true;
 		else if (action == GLFW_RELEASE)
 		{
-			PlanetDestroyer.Keys[key] = false;
-			PlanetDestroyer.KeysProcessed[key] = false;
+			Atari.Keys[key] = false;
+			Atari.KeysProcessed[key] = false;
 		}
 	}
 }
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-	PlanetDestroyer.Init();
+	Atari.Init();
 
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	while (!glfwWindowShouldClose(window) && PlanetDestroyer.Finished != true)
+	while (!glfwWindowShouldClose(window) && Atari.Finished != true)
 	{
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
@@ -72,14 +72,14 @@ int main(int argc, char* argv[])
 
 		glfwPollEvents();
 
-		PlanetDestroyer.ProcessInput(deltaTime);
+		Atari.ProcessInput(deltaTime);
 
-		PlanetDestroyer.Update(deltaTime);
+		Atari.Update(deltaTime);
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		PlanetDestroyer.Render();
+		Atari.Render();
 
 		glfwSwapBuffers(window);
 	}
