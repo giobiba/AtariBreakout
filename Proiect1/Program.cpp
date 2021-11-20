@@ -42,12 +42,12 @@ int main(int argc, char* argv[])
 #endif
 	glfwWindowHint(GLFW_RESIZABLE, false);
 
-	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Planet Destroyer", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Atari", NULL, NULL);
 	glfwMakeContextCurrent(window);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
+		std::cout << "error glad" << std::endl;
 		return -1;
 	}
 
