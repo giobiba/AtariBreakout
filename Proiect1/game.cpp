@@ -50,8 +50,10 @@ Collision CheckCollision(GameObject& ball, GameObject& two)
 
     glm::vec2 closest = box_center + clamped;
 
-    if (glm::length(closest - ball_center) < BALL_RADIUS)
-        return std::make_tuple(true, VectorDirection(difference), difference);
+
+    glm::vec2 diff = closest - ball_center;
+    if (glm::length(diff) < BALL_RADIUS)
+        return std::make_tuple(true, VectorDirection(diff), diff);
     else 
         return std::make_tuple(false, UP, glm::vec2(0.0f));
 
@@ -242,12 +244,11 @@ void Game::DoCollisions()
                     else
                         ball->Position.x -= penetration;
                 }
-                    
                 else {
                     ball->Velocity.y = -ball->Velocity.y;
 
                     float penetration = BALL_RADIUS -
-                        std::abs(diff.x);
+                        std::abs(diff.y);
 
                     if (dir == UP)
                         ball->Position.y -= penetration;
