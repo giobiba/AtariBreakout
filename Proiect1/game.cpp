@@ -31,20 +31,12 @@ Direction VectorDirection(glm::vec2 target)
     return (Direction)best_match;
 }
 
-Game::Game(unsigned int width, unsigned int height)
-    : Keys(), KeysProcessed(), Width(width), Height(height) { }
-
-Game::~Game() {
-    delete renderer;
-    delete player, ball;
-}
-
 Collision CheckCollision(GameObject& ball, GameObject& two)
 {
     glm::vec2 ball_center(ball.Position + ball.Size / 2.0f);
     glm::vec2 half_box(two.Size.x / 2.0f, two.Size.y / 2.0f);
     glm::vec2 box_center(two.Position.x + half_box.x, two.Position.y + half_box.y);
-    
+
     glm::vec2 difference = ball_center - box_center;
     glm::vec2 clamped = glm::clamp(difference, -half_box, half_box);
 
@@ -54,10 +46,20 @@ Collision CheckCollision(GameObject& ball, GameObject& two)
     glm::vec2 diff = closest - ball_center;
     if (glm::length(diff) < BALL_RADIUS)
         return std::make_tuple(true, VectorDirection(diff), diff);
-    else 
+    else
         return std::make_tuple(false, UP, glm::vec2(0.0f));
 
 }
+
+
+Game::Game(unsigned int width, unsigned int height)
+    : Keys(), KeysProcessed(), Width(width), Height(height) { }
+
+Game::~Game() {
+    delete renderer;
+    delete player, ball;
+}
+
 
 void Game::Draw(Renderer& renderer)
 {
