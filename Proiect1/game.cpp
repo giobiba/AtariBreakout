@@ -6,33 +6,63 @@
 #include "renderer.h"
 #include "game_object.h"
 
-GameObject* player,* ball;
+GameObject* player, *ball;
 Renderer* renderer;
+
+Direction VectorDirection(glm::vec2 target)
+{
+    glm::vec2 compass[] = {
+    glm::vec2(0.0f, 1.0f), // sus
+    glm::vec2(1.0f, 0.0f), // dreapta
+    glm::vec2(0.0f, -1.0f), // jos
+    glm::vec2(-1.0f, 0.0f) // stanga
+    };
+    float max = 0.0f;
+    unsigned int best_match = -1;
+    for (unsigned int i = 0; i < 4; i++)
+    {
+        float dot_product = glm::dot(glm::normalize(target), compass[i]);
+        if (dot_product > max)
+        {
+            max = dot_product;
+            best_match = i;
+        }
+    }
+    return (Direction)best_match;
+}
 
 Game::Game(unsigned int width, unsigned int height)
     : Keys(), KeysProcessed(), Width(width), Height(height) { }
 
 Game::~Game() {
     delete renderer;
-    delete player;
+    delete player, ball;
 }
 
-bool CheckCollision(GameObject& one, GameObject& two)
+Collision CheckCollision(GameObject& ball, GameObject& two)
 {
-    bool collisionX = one.Position.x + one.Size.x >= two.Position.x &&
-        two.Position.x + two.Size.x >= one.Position.x;
 
-    bool collisionY = one.Position.y + one.Size.y >= two.Position.y &&
-        two.Position.y + two.Size.y >= one.Position.y;
+    glm::vec2 ball_center(ball.Position + ball.Size / 2.0f);
+    glm::vec2 half_box(two.Size.x / 2.0f, two.Size.y / 2.0f);
+    glm::vec2 box_center(two.Position.x + half_box.x, two.Position.y + half_box.y);
+    
+    glm::vec2 difference = ball_center - box_center;
+    glm::vec2 clamped = glm::clamp(difference, -half_box, half_box);
 
-    return collisionX && collisionY;
+    glm::vec2 closest = box_center + clamped;
+
+    if (glm::length(closest - ball_center) < BALL_RADIUS)
+        return std::make_tuple(true, VectorDirection(difference), difference);
+    else 
+        return std::make_tuple(false, UP, glm::vec2(0.0f, 0.0f));
+
 }
 
 void Game::Draw(Renderer& renderer)
 {
-    for (GameObject& tile : this->Bricks)
-        if (!tile.Destroyed)
-            tile.Draw(renderer);
+    for (GameObject& brick : this->Bricks)
+        if (!brick.Destroyed) 
+            brick.Draw(renderer);            
 }
 
 void Game::Load(const char* file, unsigned int levelWidth,
@@ -88,6 +118,7 @@ void Game::Load(const char* file, unsigned int levelWidth,
 
                         glm::vec2 pos(unit_width * x, unit_height * y);
                         glm::vec2 size(unit_width, unit_height);
+                       
                         this->Bricks.push_back(GameObject(pos, size, ResourceManager::GetTexture("block"), color, glm::vec2(-35.0f, 35.0f)));
                     }
                 }
@@ -125,30 +156,39 @@ void Game::Init()
 
     glm::vec2 ballPos = glm::vec2(Width / 2.0f ,
         Height / 2.0f);
-    ball = new GameObject(ballPos, BALL_SIZE, ResourceManager::GetTexture("ball"), glm::vec3(1.0f), glm::vec2(-150.0f, 150.0f));
+    ball = new GameObject(ballPos, glm::vec2(2.0f * BALL_RADIUS, 2.0f * BALL_RADIUS), ResourceManager::GetTexture("ball"), glm::vec3(1.0f), INIT_BALL_VELOCITY);
 }
 
 void Game::Update(float dt) {
-    ball->Position += ball->Velocity * dt;
+    
+    this->Move(dt, ball);
+    this->DoCollisions();
+}
 
-    if (ball->Position.x <= 0.0f)
-    {
-        ball->Velocity.x = -ball->Velocity.x;
-        ball->Position.x = 0.0f;
-    }
-    else if (ball->Position.x + ball->Size.x >= this->Width)
-    {
-        ball->Velocity.x = -ball->Velocity.x;
-        ball->Position.x = 0.0f;
-    }
-    if (ball->Position.y <= 0.0f)
-    {
-        ball->Velocity.y = -ball->Velocity.y;
-        ball->Position.y = 0.0f;
-    }
-    else if (ball->Position.y + ball->Size.y >= this->Height)
-        this->Finished = false; // valoarea ar trebui sa fie true, dar pentru a putea fi static este fals
+void Game::Move(float dt, GameObject* obj)
+{
+    obj->Position += obj->Velocity * dt;
 
+    if (obj->Position.x <= 0.0f)
+    {
+        obj->Velocity.x = -ball->Velocity.x;
+        obj->Position.x = 0.0f;
+    }
+    else if (obj->Position.x + obj->Size.x >= Width)
+    {
+        obj->Velocity.x = -obj->Velocity.x;
+        obj->Position.x = Width - obj->Size.x;
+    }
+    if (obj->Position.y <= 0.0f)
+    {
+        obj->Velocity.y = -ball->Velocity.y;
+        obj->Position.y = 0.0f;
+    }
+    else if (obj->Position.y + obj->Size.y >= Height)
+    {
+        obj->Velocity.y = -obj->Velocity.y;
+        obj->Position.y = Height - obj->Size.y;
+    }
 }
 
 void Game::ProcessInput(float dt) {
@@ -176,3 +216,44 @@ void Game::Render()
     ball->Draw(*renderer);
 
 }
+
+void Game::DoCollisions()
+{
+    for (GameObject& brick : Bricks)
+    {
+        if (!brick.Destroyed)
+        {
+            Collision collision = CheckCollision(*ball, brick);
+            if (std::get<0>(collision))
+            {
+
+                Direction dir = std::get<1>(collision);
+                glm::vec2 diff_vector = std::get<2>(collision);
+
+                if (!brick.IsSolid) 
+                    brick.Destroyed = true;
+
+                if (dir == LEFT || dir == RIGHT)
+                    ball->Velocity.x = -ball->Velocity.x; 
+                else 
+                    ball->Velocity.y = -ball->Velocity.y;
+            }
+        }
+    }
+    Collision player_collision = CheckCollision(*ball, *player);
+
+    if (std::get<0>(player_collision))
+    {
+        float center_board = player->Position.x + player->Size.x / 2.0f;
+        float dist = (ball->Position.x + BALL_RADIUS) - center_board;
+        float perc = dist / (player->Size.x / 2.0f);
+
+        glm::vec2 oldVelocity = ball->Velocity;
+        ball->Velocity.x = INIT_BALL_VELOCITY.x * perc * 2.0f;
+
+        ball->Velocity = glm::normalize(ball->Velocity) * glm::length(oldVelocity);
+        
+        ball->Velocity.y = -1.0f * abs(ball->Velocity.y);
+    }
+}
+
