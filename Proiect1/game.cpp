@@ -41,7 +41,6 @@ Game::~Game() {
 
 Collision CheckCollision(GameObject& ball, GameObject& two)
 {
-
     glm::vec2 ball_center(ball.Position + ball.Size / 2.0f);
     glm::vec2 half_box(two.Size.x / 2.0f, two.Size.y / 2.0f);
     glm::vec2 box_center(two.Position.x + half_box.x, two.Position.y + half_box.y);
@@ -52,9 +51,9 @@ Collision CheckCollision(GameObject& ball, GameObject& two)
     glm::vec2 closest = box_center + clamped;
 
     if (glm::length(closest - ball_center) < BALL_RADIUS)
-        return std::make_tuple(true, VectorDirection(difference), difference);
+        return std::make_tuple(true, VectorDirection(difference));
     else 
-        return std::make_tuple(false, UP, glm::vec2(0.0f, 0.0f));
+        return std::make_tuple(false, UP);
 
 }
 
@@ -186,8 +185,7 @@ void Game::Move(float dt, GameObject* obj)
     }
     else if (obj->Position.y + obj->Size.y >= Height)
     {
-        obj->Velocity.y = -obj->Velocity.y;
-        obj->Position.y = Height - obj->Size.y;
+        this->Finished = true;
     }
 }
 
@@ -228,7 +226,6 @@ void Game::DoCollisions()
             {
 
                 Direction dir = std::get<1>(collision);
-                glm::vec2 diff_vector = std::get<2>(collision);
 
                 if (!brick.IsSolid) 
                     brick.Destroyed = true;
